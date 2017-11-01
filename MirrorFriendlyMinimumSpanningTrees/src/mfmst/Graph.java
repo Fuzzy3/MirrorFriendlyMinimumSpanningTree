@@ -6,6 +6,9 @@ public class Graph {
 	LinkedList<Edge> edges = new LinkedList<Edge>();
 	LinkedList<Vertex> vertices = new LinkedList<Vertex>();
 	
+	public Graph() {
+		
+	}
 
 	public void addEdge(Edge e) {
 		edges.add(e);
@@ -33,5 +36,9 @@ public class Graph {
 	
 	public LinkedList<Vertex> getVertices() {
 		return vertices;
+	}
+
+	public LinkedList<Edge> getSpanningTree() {
+		return edges;		
 	}
 }

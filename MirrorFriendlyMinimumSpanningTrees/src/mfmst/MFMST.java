@@ -18,7 +18,7 @@ public class MFMST {
 	
 	private void init() {
 		try {
-			BufferedReader in = new  BufferedReader(new FileReader("C:\\Users\\Lukas\\Documents\\DTU\\Computationally Hard Problems\\Project\\test_files\\test01.uwg"));	
+			BufferedReader in = new  BufferedReader(new FileReader("test_files/test01.uwg"));	
 			
 			int n = Integer.parseInt(in.readLine());
 			
