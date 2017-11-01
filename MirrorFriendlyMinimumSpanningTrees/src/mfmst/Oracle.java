@@ -10,14 +10,14 @@ public class Oracle {
 		return guessB >= trueB;		
 	}
 	
-//	public boolean doesSolutionExist(Graph G, int B) {
+//	public boolean doesSolutionExist(Graph graph, int B) {
 //		
 //		// Find spanning trees in the graph
-//		G.getSpanningTree();
+//		graph.getSpanningTree();
 //		
-////		if (currentTreeWeight && currentMirrorTreeweight <= B) {
-////			return true;
-////		}
+//		if (currentTreeWeight && currentMirrorTreeweight <= B) {
+//			return true;
+//		}
 //	}
 	
 	

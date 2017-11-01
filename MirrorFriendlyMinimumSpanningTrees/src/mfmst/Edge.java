@@ -1,6 +1,6 @@
 package mfmst;
 
-public class Edge {
+public class Edge implements Comparable<Edge> {
 
 	Vertex source, target;
 	int weight;
@@ -21,6 +21,16 @@ public class Edge {
 	
 	public int getWeight() {
 		return weight;
+	}
+
+	@Override
+	public int compareTo(Edge e) {
+		return this.weight > e.getWeight() ? 1 : this.weight == e.getWeight() ? 0 : -1;
+	}
+	
+	@Override
+	public String toString() {
+		return "{" + source + "," + target + "}";
 	}
 	
 	
