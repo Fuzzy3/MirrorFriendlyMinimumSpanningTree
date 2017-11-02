@@ -36,20 +36,27 @@ public class Tree extends Graph implements Comparable<Tree> {
 	}
 
 	public ArrayList<Partition> partition() {
-		ArrayList<Partition> list = new ArrayList<Partition>();
+		return partition(new Partition(new HashSet<Edge>(), new HashSet<Edge>()));
+	}
+
+	public ArrayList<Partition> partition(Partition parentParition) {
+		ArrayList<Partition> partitions = new ArrayList<Partition>();
 		HashSet<Edge> included = new HashSet<Edge>();
 		HashSet<Edge> excluded = new HashSet<Edge>();
+		included.addAll(parentParition.getIncluded());
+		excluded.addAll(parentParition.getExcluded());
 		
 		Edge prev = null;
 		for (Edge e : edges) {
+			if (included.contains(e) || excluded.contains(e)) continue;
 			if (prev != null) {
 				included.add(prev);
 				excluded.remove(prev);
 			}
 			excluded.add(e);
-			list.add(new Partition(new HashSet<Edge>(included), new HashSet<Edge>(excluded)));
+			partitions.add(new Partition(new HashSet<Edge>(included), new HashSet<Edge>(excluded)));
 			prev = e;
 		}
-		return list;
+		return partitions;
 	}
 }

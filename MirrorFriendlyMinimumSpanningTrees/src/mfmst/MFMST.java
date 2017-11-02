@@ -3,19 +3,86 @@ package mfmst;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
-import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.PriorityQueue;
 import java.util.StringTokenizer;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
+
+import javafx.concurrent.Task;
 
 public class MFMST {
 	
 	public static void main(String[] args) {
 		MFMST mfmst = new MFMST();
-		Graph g = mfmst.buildGraphFromFile("test_files/test02.uwg");
+		Graph g = mfmst.buildGraphFromFile("MirrorFriendlyMinimumSpanningTrees/test_files/test01.uwg");
 //		mfmst.run(g);
-		mfmst.findMFMST(g, 4);
+		Tree tree = mfmst.findMFMST(g, Integer.MAX_VALUE);
+		
+
+//		long start1 = System.currentTimeMillis();
+//		int B = Integer.MAX_VALUE;
+//		int lowerBound = 0, upperBound = B, minB = B;
+//		
+//		Tree MFMST = null;
+//		while (true) {
+//			Tree t = mfmst.findMFMST(g, B);
+//			if (t != null) {
+//				MFMST = t;
+//				upperBound = B;
+//				B -= (B - lowerBound)/2;
+//			} else {
+//				lowerBound = B;
+//				B += (upperBound - B)/2;
+//			}
+//			
+//			if (lowerBound + 1 == upperBound) {
+//				minB = upperBound;
+//				break;
+//			}
+//		}
+//		long end1 = System.currentTimeMillis();
+//
+//		System.out.println("MFMST \t\t= " + MFMST);
+//		System.out.println("m(MFMST)\t= " + g.getMirror(MFMST));
+//		System.out.println("w(MFMST)\t= " + MFMST.getWeight());
+//		System.out.println("w(m(MFMST))\t= " + g.getMirror(MFMST).getWeight());
+//		System.out.println("#Edges \t\t= " + MFMST.getEdges().size());
+//		System.out.println("Time(ms)\t= " + (end1-start1));
+
+		long start = System.currentTimeMillis();
+		Tree smallestBTree = mfmst.reduceB(g,tree);
+		long end = System.currentTimeMillis();
+
+		System.out.println("MFMST \t\t= " + smallestBTree);
+		System.out.println("m(MFMST)\t= " + g.getMirror(smallestBTree));
+		System.out.println("w(MFMST)\t= " + smallestBTree.getWeight());
+		System.out.println("w(m(MFMST))\t= " + g.getMirror(smallestBTree).getWeight());
+		System.out.println("#Edges \t\t= " + smallestBTree.getEdges().size());
+		System.out.println("Time(ms)\t= " + (end-start));
 				
 	}
 	
+	private Tree reduceB(Graph g, Tree t) {
+		int treeWeight = t.getWeight();
+		int mirrorWeight = g.getMirror(t).getWeight();
+		int B = treeWeight > mirrorWeight ? treeWeight : mirrorWeight;
+		Tree newT = this.findMFMST(g, B-1);
+		
+//		System.out.println("MFMST \t\t= " + t);
+//		System.out.println("m(MFMST)\t= " + g.getMirror(t));
+//		System.out.println("w(MFMST)\t= " + t.getWeight());
+//		System.out.println("w(m(MFMST))\t= " + g.getMirror(t).getWeight());
+//		System.out.println("#Edges \t\t= " + t.getEdges().size());
+		
+		return newT == null ? t : reduceB(g, newT);		
+	}
+
 	private Graph buildGraphFromFile(String localFilePath) {
 		Graph g = new Graph();
 		try {
@@ -43,42 +110,30 @@ public class MFMST {
 	
 	private Tree findMFMST(Graph G, int B) {
 		Tree MST = G.getMST();
-//		System.out.println(MST);
-//		System.out.println("MST \t\t= " + MST);
-//		System.out.println("w(MST) \t\t= " + MST.getWeight());
-//		Tree MirrorMST = G.getMirror(MST);
-//		System.out.println("M(MST) \t\t= " + MirrorMST);
-//		System.out.println("w(M(MST)) \t= " +MirrorMST.getWeight());
-
+		if (MST.getWeight() <= B && G.getMirror(MST).getWeight() <= B) return MST;
 		
-		ArrayList<Partition> partitions = MST.partition();
-		for (Partition p : partitions) {
-			System.out.println(p);
+		HashMap<Tree, Partition> partitionTrees = new HashMap<>();	// spanning trees in graph with weight <= B, not counting MST
+		for (Partition p : MST.partition()) {
+			Tree t = G.getMST(p);
+			if (t != null && t.getWeight() <= B) {	
+				if (G.getMirror(t).getWeight() <= B) return t;			
+				partitionTrees.put(t, p);
+			}
 		}
 		
-		
-//		LinkedList<Tree> msts = new LinkedList<Tree>();
-//		while (MST.getWeight() <= B) {
-////			System.out.println(MST);
-//			msts.add(MST);
-//			if (G.getMirror(MST).getWeight() <= B) return MST;
-//			else {
-//				List<Tree> partitions = new ArrayList<Tree>();
-//				HashSet<Edge> mustExclude = new HashSet<Edge>();
-//				Edge lastEdge = MST.getEdges().getLast();
-//				mustExclude.add(lastEdge);
-//				MST.removeEdge(lastEdge);
-//				HashSet<Edge> mustInclude = new HashSet<Edge>(MST.getEdges());
-//
-//				while (!mustInclude.isEmpty()) {
-//					partitions.add(G.getMST(mustInclude, mustExclude));
-//					mustInclude.remove(MST.getEdges().getLast());
-//				}
-//
-//				Collections.sort(partitions);
-////				System.out.println("Partitions: " +partitions);
-//			}
-//		}
+		PriorityQueue<Tree> pq = new PriorityQueue<>(partitionTrees.keySet());
+		while (!pq.isEmpty()) {
+			Tree t = pq.poll();
+			Partition p = partitionTrees.get(t);
+			for (Partition subP : t.partition(p)) {
+				Tree subPartitionTree = G.getMST(subP);
+				if (subPartitionTree != null && subPartitionTree.getWeight() <= B) {
+					if (G.getMirror(subPartitionTree).getWeight() <= B) return subPartitionTree;
+					partitionTrees.put(subPartitionTree, subP);
+					pq.offer(subPartitionTree);
+				}
+			}
+		}
 		
 		return null;
 	}
