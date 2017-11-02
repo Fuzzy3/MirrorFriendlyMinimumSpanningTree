@@ -6,24 +6,14 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.PriorityQueue;
 import java.util.StringTokenizer;
-import java.util.concurrent.Callable;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
-
-import javafx.concurrent.Task;
 
 public class MFMST {
 	
 	public static void main(String[] args) {
 		MFMST mfmst = new MFMST();
-		Graph g = mfmst.buildGraphFromFile("MirrorFriendlyMinimumSpanningTrees/test_files/test01.uwg");
+		Graph g = mfmst.buildGraphFromFile("MirrorFriendlyMinimumSpanningTrees/custom_test_files/TestFile09.uwg");
 //		mfmst.run(g);
 		Tree tree = mfmst.findMFMST(g, Integer.MAX_VALUE);
-		
 
 //		long start1 = System.currentTimeMillis();
 //		int B = Integer.MAX_VALUE;
@@ -114,6 +104,7 @@ public class MFMST {
 		
 		HashMap<Tree, Partition> partitionTrees = new HashMap<>();	// spanning trees in graph with weight <= B, not counting MST
 		for (Partition p : MST.partition()) {
+			System.out.println(p);
 			Tree t = G.getMST(p);
 			if (t != null && t.getWeight() <= B) {	
 				if (G.getMirror(t).getWeight() <= B) return t;			
@@ -126,6 +117,7 @@ public class MFMST {
 			Tree t = pq.poll();
 			Partition p = partitionTrees.get(t);
 			for (Partition subP : t.partition(p)) {
+				System.out.println(subP);
 				Tree subPartitionTree = G.getMST(subP);
 				if (subPartitionTree != null && subPartitionTree.getWeight() <= B) {
 					if (G.getMirror(subPartitionTree).getWeight() <= B) return subPartitionTree;
@@ -137,51 +129,4 @@ public class MFMST {
 		
 		return null;
 	}
-	
-	private void run(Graph g) {
-		Oracle oracle = new Oracle(4);
-		
-		int B = 0, minB = 0;
-		
-		for (Edge e : g.getEdges()) {
-			B += e.getWeight();
-		}
-		
-		int lowerBound = 0, upperBound = B;
-
-		B = B/2;
-		while (true) {
-			if (oracle.ask(B)) {
-				upperBound = B;
-				B -= (B - lowerBound)/2;
-			} else {
-				lowerBound = B;
-				B += (upperBound - B)/2;
-			}
-			
-			if (lowerBound + 1 == upperBound) {
-				minB = upperBound;
-				break;
-			}
-		}
-		
-		System.out.println(minB);
-		
-	}
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-
 }
