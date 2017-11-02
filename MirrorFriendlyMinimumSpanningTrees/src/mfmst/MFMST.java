@@ -12,7 +12,6 @@ public class MFMST {
 	public static void main(String[] args) {
 		MFMST mfmst = new MFMST();
 		Graph g = mfmst.buildGraphFromFile("MirrorFriendlyMinimumSpanningTrees/custom_test_files/TestFile09.uwg");
-//		mfmst.run(g);
 		Tree tree = mfmst.findMFMST(g, Integer.MAX_VALUE);
 
 //		long start1 = System.currentTimeMillis();
@@ -104,7 +103,6 @@ public class MFMST {
 		
 		HashMap<Tree, Partition> partitionTrees = new HashMap<>();	// spanning trees in graph with weight <= B, not counting MST
 		for (Partition p : MST.partition()) {
-			System.out.println(p);
 			Tree t = G.getMST(p);
 			if (t != null && t.getWeight() <= B) {	
 				if (G.getMirror(t).getWeight() <= B) return t;			
@@ -117,7 +115,6 @@ public class MFMST {
 			Tree t = pq.poll();
 			Partition p = partitionTrees.get(t);
 			for (Partition subP : t.partition(p)) {
-				System.out.println(subP);
 				Tree subPartitionTree = G.getMST(subP);
 				if (subPartitionTree != null && subPartitionTree.getWeight() <= B) {
 					if (G.getMirror(subPartitionTree).getWeight() <= B) return subPartitionTree;
