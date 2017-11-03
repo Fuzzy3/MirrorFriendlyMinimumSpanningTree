@@ -56,6 +56,10 @@ public class Graph {
 	
 	/**
 	 * Modified Kruskal's greedy algorithm for generating Minimum Spanning Tree (MST) : O(|E|log|V|)
+	 * -----------
+	 * >> Modification to account for partitions:
+	 * ---> Minimizing the edge pool by exclusion
+	 * ---> Earlier set merges by regarding some vertices as already covered by inclusion
 	 */
 	public Tree getMST() {
 		return this.getMST(new Partition(new HashSet<Edge>(), new HashSet<Edge>()));
@@ -98,23 +102,44 @@ public class Graph {
 		}
 	}
 	
+	/*
+	 * Recursive, non-optimized, reduce method for finding MFMST
+	 */
+	@SuppressWarnings("unused")
 	private Tree reduceB(Tree t) {
 		int treeWeight = t.getWeight();
 		int mirrorWeight = this.getMirror(t).getWeight();
 		int B = treeWeight > mirrorWeight ? treeWeight : mirrorWeight;
 		
 		Tree MFST = this.findMFST(B-1);
-		return MFST == null ? t : reduceB(MFST);		
+		return MFST == null ? t : reduceB(MFST);	// if no better trees can be found, MFST is MFMST	
+	}
+	
+	/*
+	 *  Implementing the reduce method iteratively as well
+	 *  Less readable but serves as to not expend all memory trying to find a solution (think test04.uwg)
+	 */
+	private Tree reduceBItr(Tree t) {
+		Tree MFST = t, MFMST;
+		int treeWeight, mirrorWeight, B;
+		do {
+			MFMST = MFST;
+			treeWeight = MFST.getWeight();
+			mirrorWeight = this.getMirror(MFST).getWeight();
+			B = treeWeight > mirrorWeight ? treeWeight : mirrorWeight;
+			MFST = this.findMFST(B-1);
+		} while (MFST != null);
+		return MFMST;
 	}
 	
 	public Tree findMFMST(PartitionType type) {
 		this.partitionType = type;
-		return this.reduceB(this.findMFST(Integer.MAX_VALUE));
+		return this.reduceBItr(this.findMFST(Integer.MAX_VALUE));
 	}
 	
 	private Tree findMFST(int B) {
 		long start = System.currentTimeMillis();
-		long end = start + 30*1000L;
+		long end = start + 60*1000L;
 		Tree MST = this.getMST();
 		if (MST.getWeight() <= B && this.getMirror(MST).getWeight() <= B) return MST;
 		
@@ -127,29 +152,6 @@ public class Graph {
 			}
 		}
 		
-		/*
-		 * RANDOM PARTITIONING 
-		 */
-//		PriorityQueue<Tree> pq = new PriorityQueue<>(partitionTrees.keySet());
-//		while (!pq.isEmpty()) {
-//			List<Object> trees = Arrays.asList(pq.toArray());
-//			Collections.shuffle(trees);
-//			Tree t = (Tree) trees.get(0);
-//			pq.remove(t);
-//			Partition p = partitionTrees.get(t);
-//			for (Partition subP : t.partition(p)) {
-//				Tree subPartitionTree = G.getMST(subP);
-//				if (subPartitionTree != null && subPartitionTree.getWeight() <= B) {
-//					if (G.getMirror(subPartitionTree).getWeight() <= B) return subPartitionTree;
-//					partitionTrees.put(subPartitionTree, subP);
-//					pq.offer(subPartitionTree);
-//				}
-//			}
-//		}
-		
-		/*
-		 * LIGHTEST FIRST PARTITIONING
-		 */
 		PriorityQueue<Tree> pq;
 		if (partitionType == PartitionType.HEAVY){
 			pq = new PriorityQueue<>(Collections.reverseOrder(new Comparator<Tree>() {
@@ -167,13 +169,26 @@ public class Graph {
 				System.out.println("Time limit exceeded");
 				break;
 			}			
-			Tree t;
-			if (partitionType != PartitionType.RANDOM) t = pq.poll();
-			else {
-				List<Object> trees = Arrays.asList(pq.toArray());
-				Collections.shuffle(trees);
-				t = (Tree) trees.get(0);
-				pq.remove(t);
+			Tree t = null;
+			List<Tree> pqList = Arrays.asList(pq.toArray(new Tree[pq.size()]));
+			switch (partitionType) {
+				case LIGHT:
+				case HEAVY:
+					t = pq.poll();
+					break;
+				case MEDIAN:
+					Collections.sort(pqList);
+					int middle = pqList.size()/2;
+					t = pqList.size()%2 == 1 ? pqList.get(middle) : pqList.get((pqList.size()+1)/2); 
+					pq.remove(t);
+					break;
+				case RANDOM:
+					Collections.shuffle(pqList);
+					t = pqList.get(0);
+					pq.remove(t);
+					break;
+				default:
+					break;
 			}
 			Partition p = partitionTrees.get(t);
 			for (Partition subP : t.partition(p)) {

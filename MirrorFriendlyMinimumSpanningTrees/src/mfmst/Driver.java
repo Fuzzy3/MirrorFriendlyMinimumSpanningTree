@@ -19,7 +19,7 @@ public class Driver {
 			g = driver.buildGraphFromFile(file.getPath());		
 			
 			long start = System.currentTimeMillis();
-			Tree MFMST = g.findMFMST(PartitionType.RANDOM);		// 3 type: LIGHT, HEAVY, RANDOM
+			Tree MFMST = g.findMFMST(PartitionType.HEAVY);		//  LIGHT, HEAVY, RANDOM, MEDIAN
 			long end = System.currentTimeMillis();
 			
 			builder.append(file.getName()).append("\n--------------\n");

@@ -2,5 +2,5 @@ package mfmst;
 
 public enum PartitionType {
 
-	RANDOM, LIGHT, HEAVY;
+	RANDOM, LIGHT, HEAVY, MEDIAN;
 }
