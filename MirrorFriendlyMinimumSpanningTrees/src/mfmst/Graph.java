@@ -68,19 +68,16 @@ public class Graph {
 	public Tree getMST(Partition p) {
 		Tree MST = new Tree();
 		PriorityQueue<Edge> pq = new PriorityQueue<Edge>(edges);
-		pq.removeAll(p.getExcluded());
 		
 		while (MST.getEdges().size() < vertices.size()-1) {
 			Edge e = pq.poll();
+			if (p.getExcluded().contains(e)) continue;
 			if (e == null) {
-				MST = null;		// the partition removes at lease one edge to make tree not connected
+				MST = null;		// as the partition removes at least one edge to make tree not connected
 				break;
 			}
-			Vertex src = e.getSource(), tar = e.getTarget();
-			HashSet<Vertex> setSrc = src.getComponentSet();
-			HashSet<Vertex> setTar = tar.getComponentSet();
-			if (Collections.disjoint(setSrc, setTar) || p.getIncluded().contains(e)) {
-				mergeSets(setSrc, setTar);
+			if (Collections.disjoint(e.getSource().getComponentSet(), e.getTarget().getComponentSet()) || p.getIncluded().contains(e)) {
+				mergeSets(e.getSource().getComponentSet(), e.getTarget().getComponentSet());
 				MST.addEdge(e);
 			}
 		}
@@ -128,7 +125,7 @@ public class Graph {
 			mirrorWeight = this.getMirror(MFST).getWeight();
 			B = treeWeight > mirrorWeight ? treeWeight : mirrorWeight;
 			MFST = this.findMFST(B-1);
-		} while (MFST != null);
+		} while (MFST != null);			// if no better trees can be found, MFST is MFMST	
 		return MFMST;
 	}
 	
@@ -143,7 +140,7 @@ public class Graph {
 		Tree MST = this.getMST();
 		if (MST.getWeight() <= B && this.getMirror(MST).getWeight() <= B) return MST;
 		
-		HashMap<Tree, Partition> partitionTrees = new HashMap<>();	// spanning trees in graph with weight <= B, not counting MST
+		HashMap<Tree, Partition> partitionTrees = new HashMap<>();	
 		for (Partition p : MST.partition()) {
 			Tree t = this.getMST(p);
 			if (t != null && t.getWeight() <= B) {	
