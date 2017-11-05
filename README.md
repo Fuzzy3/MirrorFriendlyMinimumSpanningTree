@@ -22,4 +22,10 @@ For the showcased test file, the following graph is created:
   <img src = MirrorFriendlyMinimumSpanningTrees/img/example_graph.png height="200">
 </p>
 
+### Test files
+The program will run the MFMST algorithm for all files located in both the `test_files` folder and `custom_test_files` folder, subfolders of the local `MirrorFriendlyMinimumSpanningTrees` folder. 
 
+Both of the test folders contain a number of custom `.uwg` files. The course test files are located in the `test_files`. 
+Note that the course test files folder contains a file representing a graph of significant size (`test04.uwg`). The algorithm can not deterministically solve the MFMST problem for this graph before running out of memory, and the will terminate prematurely due to a kill timer. The algorithm will display the best candidate for MFMST at the time of termination, should the time limit be exceeded.
+
+To run the program for just a single file, simply remove/break the loop going through the folders, or list the file path to your specific file.
