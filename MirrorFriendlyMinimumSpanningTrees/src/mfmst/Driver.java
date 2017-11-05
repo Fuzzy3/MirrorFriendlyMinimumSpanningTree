@@ -40,6 +40,9 @@ public class Driver {
 		for (File file : new File("MirrorFriendlyMinimumSpanningTrees/custom_test_files").listFiles()) {
 			files.add(file);
 		}
+		for (File file : new File("MirrorFriendlyMinimumSpanningTrees/test_files").listFiles()) {		
+			files.add(file);
+		}
 		return files;
 	}
 	
