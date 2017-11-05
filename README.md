@@ -1,7 +1,7 @@
 # MirrorFriendlyMinimumSpanningTree (MFMST)
-The algorithm in this project will try to find the MFMST of a given graph
+The algorithm in this project will try to find the MFMST of a given graph.
 ## Getting started
-For the algorithm to work it need to know what kind of graph it is dealing with
+For the algorithm to work it need to know what kind of graph it is dealing with.
 ### Graph construction
 Graphs are internally built from `.uwg` (Undirected Weighted Graph) files.
 The `.uwg`  files are simply glorified plain text files of a certain layout:
